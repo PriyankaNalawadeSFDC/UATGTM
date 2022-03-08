@@ -15,7 +15,10 @@ public Without Sharing class GtmProductCompetition {
     @AuraEnabled
     public static List < GtmProductCompWrapper > getproductList() {
   
-      List < Product_Category__c > gtmproductList = [Select Id, Name, Status__c From Product_Category__c];
+      List < Product_Category__c > gtmproductList = new List < Product_Category__c >();
+      if(Schema.sObjectType.Product_Category__c.isAccessible() && Schema.sObjectType.Product_Category_Sales_Org_Mapping__c.isAccessible()){
+      gtmproductList =  [Select Id, Name, Status__c From Product_Category__c];
+
       List < Product_Category_Sales_Org_Mapping__c > productCategoriesMapping = new List < Product_Category_Sales_Org_Mapping__c > ();
       Sales_Org__c gtmSo = GTMPathFinder.getSalesOrg();
   
@@ -29,9 +32,10 @@ public Without Sharing class GtmProductCompetition {
   
       List < Product_Category_Sales_Org_Mapping__c > lstSalesorgProductCategoryMap = [Select Id, Name, Product_Category__c, CreatedBy.Name, LastModifiedDate, CreatedDate, Sales_Org__r.Name, Product_Category__r.Name from Product_Category_Sales_Org_Mapping__c where Sales_Org__r.Sales_Org_Code__c =: gtmSo.Sales_Org_Code__c];
   
-      if (lstSalesorgProductCategoryMap.size() == 0) {
+      if (lstSalesorgProductCategoryMap.size() == 0 && Schema.sObjectType.Product_Category_Sales_Org_Mapping__c.isCreateable()) {
         insert productCategoriesMapping;
       }
+    }
       return getWapper();
     }
   
